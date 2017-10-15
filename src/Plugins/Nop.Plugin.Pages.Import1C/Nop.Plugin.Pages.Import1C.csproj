@@ -133,6 +133,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Class1.txt" />
+    <Compile Include="Services\XmlCategoryImportService.cs" />
+    <Compile Include="Services\XmlImportService.cs" />
+    <Compile Include="Xml\КоммерческаяИнформация2.cs" />
+    <Compile Include="Xml\КоммерческаяИнформация.cs" />
     <Compile Include="Controllers\Import1CController.cs" />
     <Compile Include="Import1CPlugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
