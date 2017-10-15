@@ -1,0 +1,9 @@
+﻿Group: Pages
+FriendlyName: Import from 1C
+SystemName: Pages.Import1C
+Version: 1.0
+SupportedVersions: 3.90
+Author: https://github.com/aram-aramyan
+DisplayOrder: 1
+FileName: Nop.Plugin.Pages.Import1C.dll
+Description: Import 1C

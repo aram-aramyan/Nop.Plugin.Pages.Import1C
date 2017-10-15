@@ -1,0 +1,31 @@
+﻿@{
+    Layout = "~/Views/Shared/_ColumnsOne.cshtml";
+
+    //title
+    Html.AddTitleParts("Импорт из 1С");
+
+}
+<div class="page">
+    <div class="page-title">
+        <h1>Импорт из 1С</h1>
+    </div>
+    <div class="page-body">
+
+        @using (Html.BeginForm("Upload", "Import1C", FormMethod.Post, new RouteValueDictionary { { "enctype", "multipart/form-data" } }))
+            {
+                @Html.AntiForgeryToken()
+                <div class="fieldset">
+                    <div class="form-fields">
+                        <div class="inputs">
+                            @Html.Label("Файл")
+                            <input name="uploadedFile" type="file" />
+                        </div>
+                    </div>
+                </div>
+                <div class="buttons">
+                    <input type="submit" name="send-email" class="button-1" value="Импорт" />
+                </div>
+            }
+
+    </div>
+</div>
