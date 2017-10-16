@@ -25,6 +25,7 @@ namespace Nop.Plugin.Pages.Import1C.Controllers
         private readonly IStoreService _storeService;
         private readonly IWorkContext _workContext;
         private readonly ICategoryService _categoryService;
+        private readonly ISpecificationAttributeService _specificationAttributeService;
 
         public Import1CController(IWorkContext workContext,
             IStoreContext storeContext,
@@ -33,7 +34,8 @@ namespace Nop.Plugin.Pages.Import1C.Controllers
             ISettingService settingService,
             ICacheManager cacheManager,
             ILocalizationService localizationService,
-            ICategoryService categoryService)
+            ICategoryService categoryService,
+            ISpecificationAttributeService specificationAttributeService)
         {
             _workContext = workContext;
             _storeContext = storeContext;
@@ -43,26 +45,61 @@ namespace Nop.Plugin.Pages.Import1C.Controllers
             _cacheManager = cacheManager;
             _localizationService = localizationService;
             _categoryService = categoryService;
+            _specificationAttributeService = specificationAttributeService;
         }
 
         public ActionResult Index()
         {
             return View("~/Plugins/Pages.Import1C/Views/Import1C.cshtml");
         }
-        
+
         public ActionResult Upload(HttpPostedFileBase uploadedFile)
         {
-            var path = Request.MapPath(string.Format("~/App_Data/import-{0:yyyy-MM-dd-HH-mm-ss}.xml", DateTime.Now));
+            var dir = Request.MapPath("~/App_Data/Import1C");
+            if (!Directory.Exists(dir))
+                Directory.CreateDirectory(dir);
+
+            var path = $"{dir}\\import-{DateTime.Now:yyyy-MM-dd-HH-mm-ss}.xml";
+            var logFile = $"{path}.log";
+
             uploadedFile.SaveAs(path);
+            logFile.Log("Файл сохранен на сервер");
 
+            var source = ReadXmlFile(path);
+            logFile.Log("Файл успешно разобран");
+
+
+
+            logFile.Log("Начало импорта");
+
+            // add categories
+            var categories = XmlCategoryImportService.Import(
+                source, 
+                _categoryService,
+                $"{dir}\\CategoryMappings.json",
+                logFile);
+
+            // add attributes
+            var attributes = XmlSpecificationAttributesImportService.Import(
+                source,
+                _specificationAttributeService, 
+                logFile);
+
+            logFile.Log("Импорт завершен");
+
+            return File(logFile, "application/octet-stream", Path.GetFileName(logFile));
+        }
+
+        private static КоммерческаяИнформация ReadXmlFile(string path)
+        {
+            КоммерческаяИнформация result;
             var serializer = new XmlSerializer(typeof(КоммерческаяИнформация));
-            var reader = new StreamReader(path);
-            var result = (КоммерческаяИнформация)serializer.Deserialize(reader);
-            reader.Close();
-
-            XmlImportService.Import(result, _categoryService);
-
-            return Content("Hello import");
+            using (var reader = new StreamReader(path))
+            {
+                result = (КоммерческаяИнформация)serializer.Deserialize(reader);
+                reader.Close();
+            }
+            return result;
         }
     }
 }

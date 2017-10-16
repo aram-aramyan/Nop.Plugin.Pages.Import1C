@@ -62,6 +62,11 @@
       <Private>True</Private>
       <Private>False</Private>
     </Reference>
+    <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\Web\bin\Newtonsoft.Json.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
     <Reference Include="Nop.Core">
       <HintPath>..\..\Web\bin\Nop.Core.dll</HintPath>
       <Private>False</Private>
@@ -134,8 +139,9 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Class1.txt" />
+    <Compile Include="Services\LogToFile.cs" />
     <Compile Include="Services\XmlCategoryImportService.cs" />
-    <Compile Include="Services\XmlImportService.cs" />
+    <Compile Include="Services\XmlSpecificationAttributesImportService.cs" />
     <Compile Include="Xml\КоммерческаяИнформация2.cs" />
     <Compile Include="Xml\КоммерческаяИнформация.cs" />
     <Compile Include="Controllers\Import1CController.cs" />
