@@ -73,16 +73,17 @@ namespace Nop.Plugin.Pages.Import1C.Controllers
             logFile.Log("Начало импорта");
 
             // add categories
-            var categories = XmlCategoryImportService.Import(
-                source, 
-                _categoryService,
-                $"{dir}\\CategoryMappings.json",
-                logFile);
+            //var categories = XmlCategoryImportService.Import(
+            //    source,
+            //    _categoryService,
+            //    $"{dir}\\CategoryMappings.json",
+            //    logFile);
 
             // add attributes
             var attributes = XmlSpecificationAttributesImportService.Import(
                 source,
-                _specificationAttributeService, 
+                _specificationAttributeService,
+                $"{dir}\\SpecificationAttributesMappings.json",
                 logFile);
 
             logFile.Log("Импорт завершен");

@@ -25,11 +25,12 @@ namespace Nop.Plugin.Pages.Import1C.Services
         {
             logFile.Log("Начало импорта категорий");
 
+            // key = 1c id, value = nopcommerce id
             var mappings = File.Exists(mappingsFile)
                 ? JsonConvert.DeserializeObject<Dictionary<string, int>>(File.ReadAllText(mappingsFile))
                 : new Dictionary<string, int>(); ;
 
-            var categories = categoryService.GetAllCategories(showHidden: true).Where(c => c != null).ToList();
+            var categories = categoryService.GetAllCategories(showHidden: true).ToList();
 
             var rootCategory = source.Классификатор.Группы.Группа;
 
