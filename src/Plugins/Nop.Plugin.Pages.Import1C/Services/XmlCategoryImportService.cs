@@ -91,7 +91,10 @@ namespace Nop.Plugin.Pages.Import1C.Services
                     Name = categoryItem.Name,
                     CreatedOnUtc = DateTime.UtcNow,
                     UpdatedOnUtc = DateTime.UtcNow,
-                    Published = true
+                    Published = true,
+                    PageSize = 6,
+                    PageSizeOptions = "6, 3, 9",
+                    AllowCustomersToSelectPageSize = true
                 };
                 if (categoryItem.Parent != null)
                     newCategory.ParentCategoryId = categoryItem.Parent.MappedTo.Id;
