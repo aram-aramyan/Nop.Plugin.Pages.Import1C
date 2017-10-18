@@ -140,6 +140,8 @@
   <ItemGroup>
     <Content Include="Class1.txt" />
     <Compile Include="Services\LogToFile.cs" />
+    <Compile Include="Services\XmlManufacturerImportService.cs" />
+    <Compile Include="Services\XmlCatalogImportService.cs" />
     <Compile Include="Services\XmlCategoryImportService.cs" />
     <Compile Include="Services\XmlSpecificationAttributesImportService.cs" />
     <Compile Include="Xml\КоммерческаяИнформация2.cs" />

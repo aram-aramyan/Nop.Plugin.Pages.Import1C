@@ -12,6 +12,7 @@ using System.IO;
 using System;
 using Nop.Plugin.Pages.Import1C.Services;
 using Nop.Services.Catalog;
+using System.Collections.Generic;
 
 namespace Nop.Plugin.Pages.Import1C.Controllers
 {
@@ -26,6 +27,9 @@ namespace Nop.Plugin.Pages.Import1C.Controllers
         private readonly IWorkContext _workContext;
         private readonly ICategoryService _categoryService;
         private readonly ISpecificationAttributeService _specificationAttributeService;
+        private readonly IManufacturerService _manufacturerService;
+        private readonly IProductService _productService;
+
 
         public Import1CController(IWorkContext workContext,
             IStoreContext storeContext,
@@ -35,7 +39,10 @@ namespace Nop.Plugin.Pages.Import1C.Controllers
             ICacheManager cacheManager,
             ILocalizationService localizationService,
             ICategoryService categoryService,
-            ISpecificationAttributeService specificationAttributeService)
+            ISpecificationAttributeService specificationAttributeService,
+            IManufacturerService manufacturerService,
+            IProductService productService
+        )
         {
             _workContext = workContext;
             _storeContext = storeContext;
@@ -46,6 +53,8 @@ namespace Nop.Plugin.Pages.Import1C.Controllers
             _localizationService = localizationService;
             _categoryService = categoryService;
             _specificationAttributeService = specificationAttributeService;
+            _manufacturerService = manufacturerService;
+            _productService = productService;
         }
 
         public ActionResult Index()
@@ -68,22 +77,44 @@ namespace Nop.Plugin.Pages.Import1C.Controllers
             var source = ReadXmlFile(path);
             logFile.Log("Файл успешно разобран");
 
-
-
             logFile.Log("Начало импорта");
 
             // add categories
-            //var categories = XmlCategoryImportService.Import(
-            //    source,
-            //    _categoryService,
-            //    $"{dir}\\CategoryMappings.json",
-            //    logFile);
+            Dictionary<string, int> categoryMappings;
+           var categories = XmlCategoryImportService.Import(
+                source,
+                _categoryService,
+                $"{dir}\\CategoryMappings.json",
+                out categoryMappings,
+                logFile);
 
             // add attributes
+            Dictionary<string, int> attributesMappings;
             var attributes = XmlSpecificationAttributesImportService.Import(
                 source,
                 _specificationAttributeService,
                 $"{dir}\\SpecificationAttributesMappings.json",
+                out attributesMappings,
+                logFile);
+
+            // add manufacturers
+            Dictionary<string, int> manufacturersMappings;
+            var manufacturers = XmlManufacturerImportService.Import(
+                source,
+                _manufacturerService,
+                $"{dir}\\ManufacturerMappings.json",
+                out manufacturersMappings,
+                logFile);
+
+            XmlCatalogImportService.Import(source,
+                _productService,
+                categories,
+                categoryMappings,
+                attributes,
+                attributesMappings,
+                manufacturers,
+                manufacturersMappings,
+                $"{dir}\\ProductsMappings.json",
                 logFile);
 
             logFile.Log("Импорт завершен");

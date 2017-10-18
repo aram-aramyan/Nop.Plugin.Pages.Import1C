@@ -18,12 +18,15 @@ namespace Nop.Plugin.Pages.Import1C.Services
         const string CategoryNameProperty = "Наименование";
         const string CategoryIdProperty = "Ид";
 
-        internal static Dictionary<string, int> Import(КоммерческаяИнформация source,
+        internal static List<Category> Import(КоммерческаяИнформация source,
             ICategoryService categoryService,
             string mappingsFile,
+            out Dictionary<string, int> outMappings,
             string logFile)
         {
             logFile.Log("Начало импорта категорий");
+
+            var stats = new[] { 0, 0 };
 
             // key = 1c id, value = nopcommerce id
             var mappings = File.Exists(mappingsFile)
@@ -38,12 +41,13 @@ namespace Nop.Plugin.Pages.Import1C.Services
 
             if (rootItem.Items != null)
                 foreach (var child in rootItem.Items)
-                    ImportCategory(child, null, categoryService, categories, mappings, logFile);
+                    ImportCategory(child, null, categoryService, categories, mappings, stats, logFile);
 
-            File.WriteAllText(mappingsFile, JsonConvert.SerializeObject(mappings), Encoding.UTF8);
-            logFile.Log("Импорт категорий завершен");
+            File.WriteAllText(mappingsFile, JsonConvert.SerializeObject(mappings, Formatting.Indented), Encoding.UTF8);
+            logFile.Log($"Импорт категорий завершен. Привязано: {stats[0]}. Добавлено: {stats[1]}.");
 
-            return mappings;
+            outMappings = mappings;
+            return categories;
         }
 
         static void ImportCategory(object categoryObject,
@@ -51,6 +55,7 @@ namespace Nop.Plugin.Pages.Import1C.Services
             ICategoryService categoryService,
             List<Category> categories,
             Dictionary<string, int> mappings,
+            int[] stats,
             string logFile)
         {
             var categoryItem = GetCategoryItem(categoryObject);
@@ -81,6 +86,7 @@ namespace Nop.Plugin.Pages.Import1C.Services
                 {
                     mappings.Add(categoryItem.Id, categoryItem.MappedTo.Id);
                     logFile.Log($"Существующая категория {categoryItem.MappedTo.Name} ({categoryItem.MappedTo.Id}): {categoryItem.Id}");
+                    stats[0]++;
                 }
             }
 
@@ -105,13 +111,14 @@ namespace Nop.Plugin.Pages.Import1C.Services
                 categoryItem.MappedTo = newCategory;
                 categories.Add(newCategory);
 
-                mappings.Add(categoryItem.Id, categoryItem.MappedTo.Id);
+                mappings[categoryItem.Id] = categoryItem.MappedTo.Id;
                 logFile.Log($"Новая категория {categoryItem.MappedTo.Name} ({categoryItem.MappedTo.Id}): {categoryItem.Id}");
+                stats[1]++;
             }
 
             if (categoryItem.Items != null)
                 foreach (var child in categoryItem.Items)
-                    ImportCategory(child, categoryItem, categoryService, categories, mappings, logFile);
+                    ImportCategory(child, categoryItem, categoryService, categories, mappings, stats, logFile);
         }
 
         static CategoryItem GetCategoryItem(object obj)
