@@ -13,6 +13,9 @@ namespace Nop.Plugin.Pages.Import1C.Services
     internal class XmlCatalogImportService
     {
         internal static void Import(КоммерческаяИнформация source,
+            ICategoryService categoryService,
+            ISpecificationAttributeService specificationAttributeService,
+            IManufacturerService manufacturerService,
             IProductService productService,
             List<Category> categories,
             Dictionary<string, int> categoryMappings,
@@ -31,48 +34,50 @@ namespace Nop.Plugin.Pages.Import1C.Services
                 ? JsonConvert.DeserializeObject<Dictionary<string, int>>(File.ReadAllText(mappingsFile))
                 : new Dictionary<string, int>();
 
-            var productIds = mappings.Values.ToArray();
-
-            var products = productIds.Length > 0
-                ? productService.GetProductsByIds(mappings.Values.ToArray())
-                : new List<Product>();
-
             foreach (var prod in source.Каталог.Товары)
             {
                 try
                 {
                     var product = mappings.ContainsKey(prod.Ид)
-                        ? products.FirstOrDefault(p => p.Id == mappings[prod.Ид])
+                        ? productService.GetProductById(mappings[prod.Ид])
                         : null;
 
+                    if (product == null)
+                        product = productService.GetProductBySku(prod.Артикул);
+
+                    var deleted = prod.Статус == "Удален";
                     if (product == null)
                     {
                         product = new Product
                         {
                             CreatedOnUtc = DateTime.Now,
-                            ProductTypeId = 5,
+                            UpdatedOnUtc = DateTime.Now,
+                            ProductType = ProductType.SimpleProduct,
                             ProductTemplateId = 1,
                             VisibleIndividually = true,
                             Name = prod.Наименование,
+                            Sku = prod.Артикул,
                             ShortDescription = prod.Описание,
                             FullDescription = prod.Описание,
                             AllowCustomerReviews = true,
+                            Deleted = deleted,
+                            Published = !deleted
                         };
                         productService.InsertProduct(product);
-                        mappings[prod.Ид] = product.Id;
                         logFile.Log($"Новый товар {product.Name} ({product.Id}): {prod.Ид}");
                         stats[0]++;
                     }
                     else
                     {
+                        product.UpdatedOnUtc = DateTime.Now;
+                        product.Deleted = deleted;
+                        product.Published = !deleted;
+                        productService.UpdateProduct(product);
                         logFile.Log($"Обновлен товар {product.Name} ({product.Id}): {prod.Ид}");
                         stats[1]++;
                     }
+                    mappings[prod.Ид] = product.Id;
 
-                    product.UpdatedOnUtc = DateTime.Now;
-                    product.Sku = prod.Артикул;
-                    product.Deleted = prod.Статус == "Удален";
-                    product.Published = !product.Deleted;
 
                     if (prod.Изготовитель != null && manufacturersMappings.ContainsKey(prod.Изготовитель.Ид))
                     {
@@ -80,12 +85,13 @@ namespace Nop.Plugin.Pages.Import1C.Services
                         var manufacturer = product.ProductManufacturers.FirstOrDefault(m => m.ManufacturerId == manufacturerId);
                         if (manufacturer == null)
                         {
-                            product.ProductManufacturers.Add(
-                                new ProductManufacturer
-                                {
-                                    ProductId = product.Id,
-                                    ManufacturerId = manufacturerId
-                                });
+                            manufacturer = new ProductManufacturer
+                            {
+                                ProductId = product.Id,
+                                ManufacturerId = manufacturerId
+                            };
+                            manufacturerService.InsertProductManufacturer(manufacturer);
+                            product.ProductManufacturers.Add(manufacturer);
                         }
                     }
 
@@ -95,12 +101,13 @@ namespace Nop.Plugin.Pages.Import1C.Services
                         var category = product.ProductCategories.FirstOrDefault(c => c.CategoryId == categoryId);
                         if (category == null)
                         {
-                            product.ProductCategories.Add(
-                                new ProductCategory
-                                {
-                                    ProductId = product.Id,
-                                    CategoryId = categoryId
-                                });
+                            category = new ProductCategory
+                            {
+                                ProductId = product.Id,
+                                CategoryId = categoryId
+                            };
+                            categoryService.InsertProductCategory(category);
+                            product.ProductCategories.Add(category);
                         }
                     }
 
@@ -117,17 +124,22 @@ namespace Nop.Plugin.Pages.Import1C.Services
                                         .FirstOrDefault(a => a.SpecificationAttributeOptionId == attributesMappings[emptyOptionKey]);
                                     if (option == null)
                                     {
-                                        product.ProductSpecificationAttributes.Add(new ProductSpecificationAttribute
+                                        option = new ProductSpecificationAttribute
                                         {
                                             ProductId = product.Id,
+                                            ShowOnProductPage = true,
+                                            AllowFiltering = false,
                                             SpecificationAttributeOptionId = attributesMappings[emptyOptionKey],
                                             AttributeType = SpecificationAttributeType.CustomText,
                                             CustomValue = attr.Значение
-                                        });
+                                        };
+                                        specificationAttributeService.InsertProductSpecificationAttribute(option);
+                                        product.ProductSpecificationAttributes.Add(option);
                                     }
                                     else if (option.CustomValue != attr.Значение)
                                     {
                                         option.CustomValue = attr.Значение;
+                                        specificationAttributeService.UpdateProductSpecificationAttribute(option);
                                     }
                                 }
                                 else
@@ -144,21 +156,28 @@ namespace Nop.Plugin.Pages.Import1C.Services
                                         .Where(a => optionIds.Contains(a.SpecificationAttributeOptionId)).ToList();
                                         if (options != null && options.Count > 0)
                                             foreach (var opt in options)
+                                            {
                                                 product.ProductSpecificationAttributes.Remove(opt);
+                                                specificationAttributeService.DeleteProductSpecificationAttribute(opt);
+                                            }
 
-                                        product.ProductSpecificationAttributes.Add(new ProductSpecificationAttribute
+                                        option = new ProductSpecificationAttribute
                                         {
                                             ProductId = product.Id,
+                                            ShowOnProductPage = true,
+                                            AllowFiltering = true,
                                             SpecificationAttributeOptionId = attributesMappings[optionKey],
                                             AttributeType = SpecificationAttributeType.Option
-                                        });
+                                        };
+                                        specificationAttributeService.InsertProductSpecificationAttribute(option);
+                                        product.ProductSpecificationAttributes.Add(option);
+
                                     }
                                 }
                             }
                         }
                     }
-
-                    productService.UpdateProduct(product);
+                    File.WriteAllText(mappingsFile, JsonConvert.SerializeObject(mappings, Formatting.Indented), Encoding.UTF8);
                 }
                 catch (Exception ex)
                 {
@@ -166,10 +185,7 @@ namespace Nop.Plugin.Pages.Import1C.Services
                 }
             }
 
-            File.WriteAllText(mappingsFile, JsonConvert.SerializeObject(mappings, Formatting.Indented), Encoding.UTF8);
-            logFile.Log("Импорт товаров завершен. Добавлено: . Обновлено: .");
+            logFile.Log($"Импорт товаров завершен. Добавлено: {stats[0]}. Обновлено: {stats[1]}.");
         }
-
-
     }
 }

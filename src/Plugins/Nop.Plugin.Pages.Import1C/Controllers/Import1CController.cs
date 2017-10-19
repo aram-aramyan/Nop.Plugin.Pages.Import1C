@@ -81,12 +81,12 @@ namespace Nop.Plugin.Pages.Import1C.Controllers
 
             // add categories
             Dictionary<string, int> categoryMappings;
-           var categories = XmlCategoryImportService.Import(
-                source,
-                _categoryService,
-                $"{dir}\\CategoryMappings.json",
-                out categoryMappings,
-                logFile);
+            var categories = XmlCategoryImportService.Import(
+                 source,
+                 _categoryService,
+                 $"{dir}\\CategoryMappings.json",
+                 out categoryMappings,
+                 logFile);
 
             // add attributes
             Dictionary<string, int> attributesMappings;
@@ -107,6 +107,9 @@ namespace Nop.Plugin.Pages.Import1C.Controllers
                 logFile);
 
             XmlCatalogImportService.Import(source,
+                _categoryService,
+                _specificationAttributeService,
+                _manufacturerService,
                 _productService,
                 categories,
                 categoryMappings,

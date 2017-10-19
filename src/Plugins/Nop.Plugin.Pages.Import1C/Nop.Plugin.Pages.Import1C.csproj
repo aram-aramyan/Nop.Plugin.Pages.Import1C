@@ -138,7 +138,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Class1.txt" />
+    <Compile Include="Class1.cs" />
     <Compile Include="Services\LogToFile.cs" />
     <Compile Include="Services\XmlManufacturerImportService.cs" />
     <Compile Include="Services\XmlCatalogImportService.cs" />
