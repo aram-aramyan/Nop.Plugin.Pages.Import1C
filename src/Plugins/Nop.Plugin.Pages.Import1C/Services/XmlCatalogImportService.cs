@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
+using Nop.Services.Seo;
 
 namespace Nop.Plugin.Pages.Import1C.Services
 {
@@ -17,6 +17,7 @@ namespace Nop.Plugin.Pages.Import1C.Services
             ISpecificationAttributeService specificationAttributeService,
             IManufacturerService manufacturerService,
             IProductService productService,
+            IUrlRecordService urlRecordService,
             List<Category> categories,
             Dictionary<string, int> categoryMappings,
             List<SpecificationAttribute> attributes,
@@ -64,6 +65,8 @@ namespace Nop.Plugin.Pages.Import1C.Services
                             Published = !deleted
                         };
                         productService.InsertProduct(product);
+                        var seName = product.ValidateSeName(null, product.Name, true);
+                        urlRecordService.SaveSlug(product, seName, 0);
                         logFile.Log($"Новый товар {product.Name} ({product.Id}): {prod.Ид}");
                         stats[0]++;
                     }
