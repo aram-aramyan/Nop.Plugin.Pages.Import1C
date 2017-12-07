@@ -1,5 +1,7 @@
 ﻿
 /// <remarks/>
+[System.SerializableAttribute()]
+[System.ComponentModel.DesignerCategoryAttribute("code")]
 [System.Xml.Serialization.XmlTypeAttribute(AnonymousType = true, Namespace = "urn:1C.ru:commerceml_2")]
 [System.Xml.Serialization.XmlRootAttribute(Namespace = "urn:1C.ru:commerceml_2", IsNullable = false)]
 public partial class КоммерческаяИнформация
@@ -54,6 +56,8 @@ public partial class КоммерческаяИнформация
 }
 
 /// <remarks/>
+[System.SerializableAttribute()]
+[System.ComponentModel.DesignerCategoryAttribute("code")]
 [System.Xml.Serialization.XmlTypeAttribute(AnonymousType = true, Namespace = "urn:1C.ru:commerceml_2")]
 public partial class КоммерческаяИнформацияКлассификатор
 {
@@ -136,6 +140,8 @@ public partial class КоммерческаяИнформацияКлассиф�
 }
 
 /// <remarks/>
+[System.SerializableAttribute()]
+[System.ComponentModel.DesignerCategoryAttribute("code")]
 [System.Xml.Serialization.XmlTypeAttribute(AnonymousType = true, Namespace = "urn:1C.ru:commerceml_2")]
 public partial class КоммерческаяИнформацияКлассификаторВладелец
 {
@@ -202,6 +208,8 @@ public partial class КоммерческаяИнформацияКлассиф�
 }
 
 /// <remarks/>
+[System.SerializableAttribute()]
+[System.ComponentModel.DesignerCategoryAttribute("code")]
 [System.Xml.Serialization.XmlTypeAttribute(AnonymousType = true, Namespace = "urn:1C.ru:commerceml_2")]
 public partial class КоммерческаяИнформацияКлассификаторГруппы
 {
@@ -223,6 +231,8 @@ public partial class КоммерческаяИнформацияКлассиф�
 }
 
 /// <remarks/>
+[System.SerializableAttribute()]
+[System.ComponentModel.DesignerCategoryAttribute("code")]
 [System.Xml.Serialization.XmlTypeAttribute(AnonymousType = true, Namespace = "urn:1C.ru:commerceml_2")]
 public partial class КоммерческаяИнформацияКлассификаторГруппыГруппа
 {
@@ -275,6 +285,8 @@ public partial class КоммерческаяИнформацияКлассиф�
 }
 
 /// <remarks/>
+[System.SerializableAttribute()]
+[System.ComponentModel.DesignerCategoryAttribute("code")]
 [System.Xml.Serialization.XmlTypeAttribute(AnonymousType = true, Namespace = "urn:1C.ru:commerceml_2")]
 public partial class КоммерческаяИнформацияКлассификаторГруппыГруппаГруппа
 {
@@ -327,6 +339,8 @@ public partial class КоммерческаяИнформацияКлассиф�
 }
 
 /// <remarks/>
+[System.SerializableAttribute()]
+[System.ComponentModel.DesignerCategoryAttribute("code")]
 [System.Xml.Serialization.XmlTypeAttribute(AnonymousType = true, Namespace = "urn:1C.ru:commerceml_2")]
 public partial class КоммерческаяИнформацияКлассификаторГруппыГруппаГруппаГруппа
 {
@@ -379,6 +393,8 @@ public partial class КоммерческаяИнформацияКлассиф�
 }
 
 /// <remarks/>
+[System.SerializableAttribute()]
+[System.ComponentModel.DesignerCategoryAttribute("code")]
 [System.Xml.Serialization.XmlTypeAttribute(AnonymousType = true, Namespace = "urn:1C.ru:commerceml_2")]
 public partial class КоммерческаяИнформацияКлассификаторГруппыГруппаГруппаГруппаГруппа
 {
@@ -431,6 +447,8 @@ public partial class КоммерческаяИнформацияКлассиф�
 }
 
 /// <remarks/>
+[System.SerializableAttribute()]
+[System.ComponentModel.DesignerCategoryAttribute("code")]
 [System.Xml.Serialization.XmlTypeAttribute(AnonymousType = true, Namespace = "urn:1C.ru:commerceml_2")]
 public partial class КоммерческаяИнформацияКлассификаторГруппыГруппаГруппаГруппаГруппаГруппа
 {
@@ -467,6 +485,8 @@ public partial class КоммерческаяИнформацияКлассиф�
 }
 
 /// <remarks/>
+[System.SerializableAttribute()]
+[System.ComponentModel.DesignerCategoryAttribute("code")]
 [System.Xml.Serialization.XmlTypeAttribute(AnonymousType = true, Namespace = "urn:1C.ru:commerceml_2")]
 public partial class КоммерческаяИнформацияКлассификаторСвойство
 {
@@ -534,6 +554,8 @@ public partial class КоммерческаяИнформацияКлассиф�
 }
 
 /// <remarks/>
+[System.SerializableAttribute()]
+[System.ComponentModel.DesignerCategoryAttribute("code")]
 [System.Xml.Serialization.XmlTypeAttribute(AnonymousType = true, Namespace = "urn:1C.ru:commerceml_2")]
 public partial class КоммерческаяИнформацияКлассификаторСвойствоСправочник
 {

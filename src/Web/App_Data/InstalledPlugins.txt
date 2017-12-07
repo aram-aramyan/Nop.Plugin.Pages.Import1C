@@ -2,6 +2,7 @@ DiscountRequirement.HasOneProduct
 DiscountRequirement.MustBeAssignedToCustomerRole
 CurrencyExchange.ECB
 ExternalAuth.Facebook
+Pages.Import1C
 Payments.CheckMoneyOrder
 Payments.PayPalDirect
 Payments.Manual

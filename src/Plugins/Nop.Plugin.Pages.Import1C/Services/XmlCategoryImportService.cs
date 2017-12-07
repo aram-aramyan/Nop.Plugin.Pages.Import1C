@@ -8,6 +8,7 @@ using Nop.Core.Domain.Catalog;
 using System.IO;
 using Newtonsoft.Json;
 using System.Text;
+using Nop.Services.Seo;
 
 namespace Nop.Plugin.Pages.Import1C.Services
 {
@@ -20,6 +21,7 @@ namespace Nop.Plugin.Pages.Import1C.Services
 
         internal static List<Category> Import(КоммерческаяИнформация source,
             ICategoryService categoryService,
+            IUrlRecordService urlRecordService,
             string mappingsFile,
             out Dictionary<string, int> outMappings,
             string logFile)
@@ -31,7 +33,7 @@ namespace Nop.Plugin.Pages.Import1C.Services
             // key = 1c id, value = nopcommerce id
             var mappings = File.Exists(mappingsFile)
                 ? JsonConvert.DeserializeObject<Dictionary<string, int>>(File.ReadAllText(mappingsFile))
-                : new Dictionary<string, int>(); ;
+                : new Dictionary<string, int>(); 
 
             var categories = categoryService.GetAllCategories(showHidden: true).ToList();
 
@@ -41,7 +43,7 @@ namespace Nop.Plugin.Pages.Import1C.Services
 
             if (rootItem.Items != null)
                 foreach (var child in rootItem.Items)
-                    ImportCategory(child, null, categoryService, categories, mappings, stats, logFile);
+                    ImportCategory(child, null, categoryService, urlRecordService, categories, mappings, stats, logFile);
 
             File.WriteAllText(mappingsFile, JsonConvert.SerializeObject(mappings, Formatting.Indented), Encoding.UTF8);
             logFile.Log($"Импорт категорий завершен. Привязано: {stats[0]}. Добавлено: {stats[1]}.");
@@ -53,6 +55,7 @@ namespace Nop.Plugin.Pages.Import1C.Services
         static void ImportCategory(object categoryObject,
             CategoryItem parentItem,
             ICategoryService categoryService,
+            IUrlRecordService urlRecordService,
             List<Category> categories,
             Dictionary<string, int> mappings,
             int[] stats,
@@ -108,6 +111,9 @@ namespace Nop.Plugin.Pages.Import1C.Services
 
                 categoryService.InsertCategory(newCategory);
 
+                var seName = newCategory.ValidateSeName(null, newCategory.Name, true);
+                urlRecordService.SaveSlug(newCategory, seName, 0);
+
                 categoryItem.MappedTo = newCategory;
                 categories.Add(newCategory);
 
@@ -118,7 +124,7 @@ namespace Nop.Plugin.Pages.Import1C.Services
 
             if (categoryItem.Items != null)
                 foreach (var child in categoryItem.Items)
-                    ImportCategory(child, categoryItem, categoryService, categories, mappings, stats, logFile);
+                    ImportCategory(child, categoryItem, categoryService, urlRecordService, categories, mappings, stats, logFile);
         }
 
         static CategoryItem GetCategoryItem(object obj)

@@ -1,9 +1,10 @@
-﻿
-/// <remarks/>
+﻿/// <remarks/>
 public partial class КоммерческаяИнформация
 {
+
     private КоммерческаяИнформацияКаталог каталогField;
 
+ 
     /// <remarks/>
     public КоммерческаяИнформацияКаталог Каталог
     {
@@ -16,12 +17,16 @@ public partial class КоммерческаяИнформация
             this.каталогField = value;
         }
     }
+   
 }
 
 /// <remarks/>
+[System.SerializableAttribute()]
+[System.ComponentModel.DesignerCategoryAttribute("code")]
 [System.Xml.Serialization.XmlTypeAttribute(AnonymousType = true, Namespace = "urn:1C.ru:commerceml_2")]
 public partial class КоммерческаяИнформацияКаталог
 {
+
     private string идField;
 
     private string идКлассификатораField;
@@ -116,6 +121,8 @@ public partial class КоммерческаяИнформацияКаталог
 }
 
 /// <remarks/>
+[System.SerializableAttribute()]
+[System.ComponentModel.DesignerCategoryAttribute("code")]
 [System.Xml.Serialization.XmlTypeAttribute(AnonymousType = true, Namespace = "urn:1C.ru:commerceml_2")]
 public partial class КоммерческаяИнформацияКаталогВладелец
 {
@@ -182,6 +189,8 @@ public partial class КоммерческаяИнформацияКаталог�
 }
 
 /// <remarks/>
+[System.SerializableAttribute()]
+[System.ComponentModel.DesignerCategoryAttribute("code")]
 [System.Xml.Serialization.XmlTypeAttribute(AnonymousType = true, Namespace = "urn:1C.ru:commerceml_2")]
 public partial class КоммерческаяИнформацияКаталогТовар
 {
@@ -197,6 +206,8 @@ public partial class КоммерческаяИнформацияКаталог�
     private КоммерческаяИнформацияКаталогТоварГруппы группыField;
 
     private string описаниеField;
+
+    private string картинкаField;
 
     private КоммерческаяИнформацияКаталогТоварИзготовитель изготовительField;
 
@@ -287,6 +298,19 @@ public partial class КоммерческаяИнформацияКаталог�
     }
 
     /// <remarks/>
+    public string Картинка
+    {
+        get
+        {
+            return this.картинкаField;
+        }
+        set
+        {
+            this.картинкаField = value;
+        }
+    }
+
+    /// <remarks/>
     public КоммерческаяИнформацияКаталогТоварИзготовитель Изготовитель
     {
         get
@@ -356,6 +380,8 @@ public partial class КоммерческаяИнформацияКаталог�
 }
 
 /// <remarks/>
+[System.SerializableAttribute()]
+[System.ComponentModel.DesignerCategoryAttribute("code")]
 [System.Xml.Serialization.XmlTypeAttribute(AnonymousType = true, Namespace = "urn:1C.ru:commerceml_2")]
 public partial class КоммерческаяИнформацияКаталогТоварБазоваяЕдиница
 {
@@ -425,6 +451,8 @@ public partial class КоммерческаяИнформацияКаталог�
 }
 
 /// <remarks/>
+[System.SerializableAttribute()]
+[System.ComponentModel.DesignerCategoryAttribute("code")]
 [System.Xml.Serialization.XmlTypeAttribute(AnonymousType = true, Namespace = "urn:1C.ru:commerceml_2")]
 public partial class КоммерческаяИнформацияКаталогТоварБазоваяЕдиницаПересчет
 {
@@ -461,6 +489,8 @@ public partial class КоммерческаяИнформацияКаталог�
 }
 
 /// <remarks/>
+[System.SerializableAttribute()]
+[System.ComponentModel.DesignerCategoryAttribute("code")]
 [System.Xml.Serialization.XmlTypeAttribute(AnonymousType = true, Namespace = "urn:1C.ru:commerceml_2")]
 public partial class КоммерческаяИнформацияКаталогТоварГруппы
 {
@@ -482,6 +512,8 @@ public partial class КоммерческаяИнформацияКаталог�
 }
 
 /// <remarks/>
+[System.SerializableAttribute()]
+[System.ComponentModel.DesignerCategoryAttribute("code")]
 [System.Xml.Serialization.XmlTypeAttribute(AnonymousType = true, Namespace = "urn:1C.ru:commerceml_2")]
 public partial class КоммерческаяИнформацияКаталогТоварИзготовитель
 {
@@ -518,6 +550,8 @@ public partial class КоммерческаяИнформацияКаталог�
 }
 
 /// <remarks/>
+[System.SerializableAttribute()]
+[System.ComponentModel.DesignerCategoryAttribute("code")]
 [System.Xml.Serialization.XmlTypeAttribute(AnonymousType = true, Namespace = "urn:1C.ru:commerceml_2")]
 public partial class КоммерческаяИнформацияКаталогТоварЗначенияСвойства
 {
@@ -554,6 +588,8 @@ public partial class КоммерческаяИнформацияКаталог�
 }
 
 /// <remarks/>
+[System.SerializableAttribute()]
+[System.ComponentModel.DesignerCategoryAttribute("code")]
 [System.Xml.Serialization.XmlTypeAttribute(AnonymousType = true, Namespace = "urn:1C.ru:commerceml_2")]
 public partial class КоммерческаяИнформацияКаталогТоварСтавкиНалогов
 {
@@ -575,6 +611,8 @@ public partial class КоммерческаяИнформацияКаталог�
 }
 
 /// <remarks/>
+[System.SerializableAttribute()]
+[System.ComponentModel.DesignerCategoryAttribute("code")]
 [System.Xml.Serialization.XmlTypeAttribute(AnonymousType = true, Namespace = "urn:1C.ru:commerceml_2")]
 public partial class КоммерческаяИнформацияКаталогТоварСтавкиНалоговСтавкаНалога
 {
@@ -611,6 +649,8 @@ public partial class КоммерческаяИнформацияКаталог�
 }
 
 /// <remarks/>
+[System.SerializableAttribute()]
+[System.ComponentModel.DesignerCategoryAttribute("code")]
 [System.Xml.Serialization.XmlTypeAttribute(AnonymousType = true, Namespace = "urn:1C.ru:commerceml_2")]
 public partial class КоммерческаяИнформацияКаталогТоварЗначениеРеквизита
 {

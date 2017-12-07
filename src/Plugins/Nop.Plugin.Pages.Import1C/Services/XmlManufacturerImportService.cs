@@ -6,6 +6,7 @@ using System.Text;
 using System.Linq;
 using System;
 using Nop.Core.Domain.Catalog;
+using Nop.Services.Seo;
 
 namespace Nop.Plugin.Pages.Import1C.Services
 {
@@ -13,9 +14,10 @@ namespace Nop.Plugin.Pages.Import1C.Services
     {
         internal static List<Manufacturer> Import(КоммерческаяИнформация source,
             IManufacturerService manufacturerService,
+            IUrlRecordService urlRecordService,
             string mappingsFile,
-                        out Dictionary<string, int> outMappings,
-string logFile)
+            out Dictionary<string, int> outMappings,
+            string logFile)
         {
             logFile.Log("Начало импорта производителей");
             var stats = new[] { 0, 0 };
@@ -43,7 +45,7 @@ string logFile)
                     manufacturer = manufacturers.FirstOrDefault(m => m.Name == man.Name && !mappings.ContainsValue(m.Id));
                     if (manufacturer == null)
                     {
-                        manufacturer = new Core.Domain.Catalog.Manufacturer
+                        manufacturer = new Manufacturer
                         {
                             Name = man.Name,
                             CreatedOnUtc = DateTime.UtcNow,
@@ -55,6 +57,8 @@ string logFile)
                             ManufacturerTemplateId = 1
                         };
                         manufacturerService.InsertManufacturer(manufacturer);
+                        var seName = manufacturer.ValidateSeName(null, manufacturer.Name, true);
+                        urlRecordService.SaveSlug(manufacturer, seName, 0);
                         manufacturers.Add(manufacturer);
                         logFile.Log($"Новый бренд {manufacturer.Name} ({manufacturer.Id}): {man.Id}");
                         stats[0]++;

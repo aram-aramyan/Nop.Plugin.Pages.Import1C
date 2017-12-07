@@ -7,10 +7,12 @@ using System;
 using Nop.Plugin.Pages.Import1C.Services;
 using Nop.Services.Catalog;
 using System.Collections.Generic;
+using Nop.Services.Media;
 using Nop.Services.Seo;
 
 namespace Nop.Plugin.Pages.Import1C.Controllers
 {
+    [AdminAuthorize]
     public class Import1CController : BasePluginController
     {
         private readonly ICategoryService _categoryService;
@@ -18,13 +20,14 @@ namespace Nop.Plugin.Pages.Import1C.Controllers
         private readonly IManufacturerService _manufacturerService;
         private readonly IProductService _productService;
         private readonly IUrlRecordService _urlRecordService;
-
+        private readonly IPictureService _pictureService;
 
         public Import1CController(ICategoryService categoryService,
             ISpecificationAttributeService specificationAttributeService,
             IManufacturerService manufacturerService,
             IProductService productService,
-            IUrlRecordService urlRecordService
+            IUrlRecordService urlRecordService,
+            IPictureService pictureService
         )
         {
             _categoryService = categoryService;
@@ -32,6 +35,7 @@ namespace Nop.Plugin.Pages.Import1C.Controllers
             _manufacturerService = manufacturerService;
             _productService = productService;
             _urlRecordService = urlRecordService;
+            _pictureService = pictureService;
         }
 
         public ActionResult Index()
@@ -62,7 +66,8 @@ namespace Nop.Plugin.Pages.Import1C.Controllers
             var categories = XmlCategoryImportService.Import(
                  source,
                  _categoryService,
-                 $"{dir}\\CategoryMappings.json",
+                     _urlRecordService,
+            $"{dir}\\CategoryMappings.json",
                  out categoryMappings,
                  logFile);
 
@@ -80,7 +85,8 @@ namespace Nop.Plugin.Pages.Import1C.Controllers
             var manufacturers = XmlManufacturerImportService.Import(
                 source,
                 _manufacturerService,
-                $"{dir}\\ManufacturerMappings.json",
+                  _urlRecordService,
+              $"{dir}\\ManufacturerMappings.json",
                 out manufacturersMappings,
                 logFile);
 
@@ -90,6 +96,7 @@ namespace Nop.Plugin.Pages.Import1C.Controllers
                 _manufacturerService,
                 _productService,
                 _urlRecordService,
+                _pictureService,
                 categories,
                 categoryMappings,
                 attributes,

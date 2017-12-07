@@ -6,6 +6,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Web;
+using Nop.Core;
+using Nop.Core.Domain.Media;
+using Nop.Services.Media;
 using Nop.Services.Seo;
 
 namespace Nop.Plugin.Pages.Import1C.Services
@@ -18,6 +22,7 @@ namespace Nop.Plugin.Pages.Import1C.Services
             IManufacturerService manufacturerService,
             IProductService productService,
             IUrlRecordService urlRecordService,
+            IPictureService pictureService,
             List<Category> categories,
             Dictionary<string, int> categoryMappings,
             List<SpecificationAttribute> attributes,
@@ -180,6 +185,23 @@ namespace Nop.Plugin.Pages.Import1C.Services
                             }
                         }
                     }
+
+                    if (!string.IsNullOrEmpty(prod.Картинка))
+                    {
+                        // todo: compare with existing images
+                        var picturePath = HttpContext.Current.Request.MapPath($"~/Content/{prod.Картинка}");
+                        var picture = LoadPicture(pictureService, picturePath, product.Name);
+                        if (picture != null)
+                        {
+                            product.ProductPictures.Add(new ProductPicture
+                            {
+                                DisplayOrder = 1,
+                                PictureId = picture.Id,
+                                ProductId = product.Id
+                            });
+                        }
+                    }
+
                     File.WriteAllText(mappingsFile, JsonConvert.SerializeObject(mappings, Formatting.Indented), Encoding.UTF8);
                 }
                 catch (Exception ex)
@@ -189,6 +211,46 @@ namespace Nop.Plugin.Pages.Import1C.Services
             }
 
             logFile.Log($"Импорт товаров завершен. Добавлено: {stats[0]}. Обновлено: {stats[1]}.");
+        }
+
+        private static Picture LoadPicture(IPictureService pictureService, string picturePath, string name,
+            int? picId = null)
+        {
+            if (string.IsNullOrEmpty(picturePath) || !File.Exists(picturePath))
+                return null;
+
+            var mimeType = GetMimeTypeFromFilePath(picturePath);
+            var newPictureBinary = File.ReadAllBytes(picturePath);
+            var pictureAlreadyExists = false;
+            if (picId != null)
+            {
+                //compare with existing product pictures
+                var existingPicture = pictureService.GetPictureById(picId.Value);
+
+                var existingBinary = pictureService.LoadPictureBinary(existingPicture);
+                //picture binary after validation (like in database)
+                var validatedPictureBinary = pictureService.ValidatePicture(newPictureBinary, mimeType);
+                if (existingBinary.SequenceEqual(validatedPictureBinary) ||
+                    existingBinary.SequenceEqual(newPictureBinary))
+                    pictureAlreadyExists = true;
+            }
+
+            if (pictureAlreadyExists) return null;
+
+            var newPicture = pictureService.InsertPicture(newPictureBinary, mimeType,
+                pictureService.GetPictureSeName(name));
+            return newPicture;
+        }
+
+        private static string GetMimeTypeFromFilePath(string filePath)
+        {
+            var mimeType = MimeMapping.GetMimeMapping(filePath);
+
+            //little hack here because MimeMapping does not contain all mappings (e.g. PNG)
+            if (mimeType == MimeTypes.ApplicationOctetStream)
+                mimeType = MimeTypes.ImageJpeg;
+
+            return mimeType;
         }
     }
 }
