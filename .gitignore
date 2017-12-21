@@ -253,3 +253,4 @@ paket-files/
 
 # Output Directory
 /src/Web/Content/Images/Thumbs
+/src/Web/App_Data/Import1C

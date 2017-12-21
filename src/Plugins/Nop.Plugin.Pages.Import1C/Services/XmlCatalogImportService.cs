@@ -16,6 +16,14 @@ namespace Nop.Plugin.Pages.Import1C.Services
 {
     internal class XmlCatalogImportService
     {
+        public class ImportCatalogSettings
+        {
+            public bool UpdateExisting;
+            public bool ImportSpecificationAttributes;
+            public bool OverwriteCategories;
+            public bool OverwriteManufacturers;
+        }
+
         internal static void Import(КоммерческаяИнформация source,
             ICategoryService categoryService,
             ISpecificationAttributeService specificationAttributeService,
@@ -30,8 +38,8 @@ namespace Nop.Plugin.Pages.Import1C.Services
             List<Manufacturer> manufacturers,
             Dictionary<string, int> manufacturersMappings,
             string mappingsFile,
-            string logFile, 
-            bool updateExisting)
+            string logFile,
+            ImportCatalogSettings importSettings)
 
         {
             logFile.Log("Начало импорта товаров");
@@ -48,9 +56,6 @@ namespace Nop.Plugin.Pages.Import1C.Services
                     var product = mappings.ContainsKey(prod.Ид)
                         ? productService.GetProductById(mappings[prod.Ид])
                         : null;
-
-                    //if (product == null)
-                    //    product = productService.GetProductBySku(prod.Артикул);
 
                     var deleted = prod.Статус == "Удален";
                     if (product == null)
@@ -78,7 +83,7 @@ namespace Nop.Plugin.Pages.Import1C.Services
                     }
                     else
                     {
-                        if (!updateExisting)
+                        if (!importSettings.UpdateExisting)
                         {
                             logFile.Log($"Пропущен товар {product.Name} ({product.Id}): {prod.Ид}");
                             stats[1]++;
@@ -93,7 +98,13 @@ namespace Nop.Plugin.Pages.Import1C.Services
                     }
                     mappings[prod.Ид] = product.Id;
 
-
+                    if (importSettings.OverwriteManufacturers)
+                    {
+                        foreach (var manufacturer in product.ProductManufacturers.ToList())
+                        {
+                            manufacturerService.DeleteProductManufacturer(manufacturer);
+                        }
+                    }
                     if (prod.Изготовитель != null && manufacturersMappings.ContainsKey(prod.Изготовитель.Ид))
                     {
                         var manufacturerId = manufacturersMappings[prod.Изготовитель.Ид];
@@ -110,6 +121,13 @@ namespace Nop.Plugin.Pages.Import1C.Services
                         }
                     }
 
+                    if (importSettings.OverwriteCategories)
+                    {
+                        foreach (var category in product.ProductCategories.ToList())
+                        {
+                            categoryService.DeleteProductCategory(category);
+                        }
+                    }
                     if (prod.Группы != null && categoryMappings.ContainsKey(prod.Группы.Ид))
                     {
                         var categoryId = categoryMappings[prod.Группы.Ид];
@@ -126,7 +144,7 @@ namespace Nop.Plugin.Pages.Import1C.Services
                         }
                     }
 
-                    if (prod.ЗначенияСвойств != null)
+                    if (importSettings.ImportSpecificationAttributes && prod.ЗначенияСвойств != null)
                     {
                         foreach (var attr in prod.ЗначенияСвойств)
                         {

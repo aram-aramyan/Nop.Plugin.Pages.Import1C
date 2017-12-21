@@ -1,2 +1,2 @@
 DataProvider: sqlserver
-DataConnectionString: Data Source=(local)\sqlexpress;Initial Catalog=NopCommerce;Integrated Security=True;MultipleActiveResultSets=True
+DataConnectionString: Data Source=(local);Initial Catalog=NopCommerce;Integrated Security=True;MultipleActiveResultSets=True

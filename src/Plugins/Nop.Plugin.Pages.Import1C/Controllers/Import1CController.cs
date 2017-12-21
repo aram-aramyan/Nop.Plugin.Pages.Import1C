@@ -7,6 +7,7 @@ using System;
 using Nop.Plugin.Pages.Import1C.Services;
 using Nop.Services.Catalog;
 using System.Collections.Generic;
+using Nop.Core.Domain.Catalog;
 using Nop.Services.Media;
 using Nop.Services.Seo;
 
@@ -44,7 +45,11 @@ namespace Nop.Plugin.Pages.Import1C.Controllers
             return View("~/Plugins/Pages.Import1C/Views/Import1C.cshtml");
         }
 
-        public ActionResult Upload(HttpPostedFileBase uploadedFile, bool updateExisting = false)
+        public ActionResult Upload(HttpPostedFileBase uploadedFile, 
+            bool updateExisting = false,
+            bool importSpecificationAttributes = false,
+            bool overwriteCategories = false,
+            bool overwriteManufacturers = false)
         {
             var dir = Request.MapPath("~/App_Data/Import1C");
             if (!Directory.Exists(dir))
@@ -73,12 +78,21 @@ namespace Nop.Plugin.Pages.Import1C.Controllers
 
             // add attributes
             Dictionary<string, int> attributesMappings;
-            var attributes = XmlSpecificationAttributesImportService.Import(
-                source,
-                _specificationAttributeService,
-                $"{dir}\\SpecificationAttributesMappings.json",
-                out attributesMappings,
-                logFile);
+            List<SpecificationAttribute> attributes;
+            if (importSpecificationAttributes)
+            {
+                attributes = XmlSpecificationAttributesImportService.Import(
+                    source,
+                    _specificationAttributeService,
+                    $"{dir}\\SpecificationAttributesMappings.json",
+                    out attributesMappings,
+                    logFile);
+            }
+            else
+            {
+                attributesMappings = new Dictionary<string, int>();
+                attributes = new List<SpecificationAttribute>();
+            }
 
             // add manufacturers
             Dictionary<string, int> manufacturersMappings;
@@ -105,7 +119,13 @@ namespace Nop.Plugin.Pages.Import1C.Controllers
                 manufacturersMappings,
                 $"{dir}\\ProductsMappings.json",
                 logFile, 
-                updateExisting);
+                new XmlCatalogImportService.ImportCatalogSettings
+                {
+                    UpdateExisting = updateExisting,
+                    ImportSpecificationAttributes = importSpecificationAttributes,
+                    OverwriteCategories = overwriteCategories,
+                    OverwriteManufacturers = overwriteManufacturers
+                });
 
             logFile.Log("Импорт завершен");
 
