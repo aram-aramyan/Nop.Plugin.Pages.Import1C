@@ -44,7 +44,7 @@ namespace Nop.Plugin.Pages.Import1C.Controllers
             return View("~/Plugins/Pages.Import1C/Views/Import1C.cshtml");
         }
 
-        public ActionResult Upload(HttpPostedFileBase uploadedFile)
+        public ActionResult Upload(HttpPostedFileBase uploadedFile, bool updateExisting = false)
         {
             var dir = Request.MapPath("~/App_Data/Import1C");
             if (!Directory.Exists(dir))
@@ -104,7 +104,8 @@ namespace Nop.Plugin.Pages.Import1C.Controllers
                 manufacturers,
                 manufacturersMappings,
                 $"{dir}\\ProductsMappings.json",
-                logFile);
+                logFile, 
+                updateExisting);
 
             logFile.Log("Импорт завершен");
 

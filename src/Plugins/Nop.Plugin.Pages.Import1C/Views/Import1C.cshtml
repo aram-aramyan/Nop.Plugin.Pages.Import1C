@@ -12,20 +12,24 @@
     <div class="page-body">
 
         @using (Html.BeginForm("Upload", "Import1C", FormMethod.Post, new RouteValueDictionary { { "enctype", "multipart/form-data" } }))
-            {
-                @Html.AntiForgeryToken()
-                <div class="fieldset">
-                    <div class="form-fields">
-                        <div class="inputs">
-                            @Html.Label("Файл")
-                            <input name="uploadedFile" type="file" />
-                        </div>
-                    </div>
+    {
+        @Html.AntiForgeryToken()
+        <div class="fieldset">
+            <div class="form-fields">
+                <div class="inputs">
+                    @Html.Label("Файл")
+                    <input name="uploadedFile" type="file" />
                 </div>
-                <div class="buttons">
-                    <input type="submit" name="send-email" class="button-1" value="Импорт" />
+                <div class="inputs">
+                    @Html.Label("обновлять существующие")
+                    <input name="updateExisting" type="checkbox" value="true" />
                 </div>
-            }
+            </div>
+        </div>
+        <div class="buttons">
+            <input type="submit" name="send-email" class="button-1" value="Импорт" />
+        </div>
+}
 
     </div>
 </div>

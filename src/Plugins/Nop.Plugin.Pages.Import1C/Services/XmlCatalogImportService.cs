@@ -30,7 +30,8 @@ namespace Nop.Plugin.Pages.Import1C.Services
             List<Manufacturer> manufacturers,
             Dictionary<string, int> manufacturersMappings,
             string mappingsFile,
-            string logFile)
+            string logFile, 
+            bool updateExisting)
 
         {
             logFile.Log("Начало импорта товаров");
@@ -48,8 +49,8 @@ namespace Nop.Plugin.Pages.Import1C.Services
                         ? productService.GetProductById(mappings[prod.Ид])
                         : null;
 
-                    if (product == null)
-                        product = productService.GetProductBySku(prod.Артикул);
+                    //if (product == null)
+                    //    product = productService.GetProductBySku(prod.Артикул);
 
                     var deleted = prod.Статус == "Удален";
                     if (product == null)
@@ -77,6 +78,12 @@ namespace Nop.Plugin.Pages.Import1C.Services
                     }
                     else
                     {
+                        if (!updateExisting)
+                        {
+                            logFile.Log($"Пропущен товар {product.Name} ({product.Id}): {prod.Ид}");
+                            stats[1]++;
+                            continue;
+                        }
                         product.UpdatedOnUtc = DateTime.Now;
                         product.Deleted = deleted;
                         product.Published = !deleted;
