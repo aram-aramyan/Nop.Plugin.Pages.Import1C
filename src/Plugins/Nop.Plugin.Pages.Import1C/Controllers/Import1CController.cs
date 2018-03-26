@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using Nop.Core.Domain.Catalog;
 using Nop.Services.Media;
 using Nop.Services.Seo;
+using Nop.Services.Shipping;
 
 namespace Nop.Plugin.Pages.Import1C.Controllers
 {
@@ -22,13 +23,15 @@ namespace Nop.Plugin.Pages.Import1C.Controllers
         private readonly IProductService _productService;
         private readonly IUrlRecordService _urlRecordService;
         private readonly IPictureService _pictureService;
+        private readonly IShippingService _shippingService;
 
         public Import1CController(ICategoryService categoryService,
             ISpecificationAttributeService specificationAttributeService,
             IManufacturerService manufacturerService,
             IProductService productService,
             IUrlRecordService urlRecordService,
-            IPictureService pictureService
+            IPictureService pictureService,
+            IShippingService shippingService
         )
         {
             _categoryService = categoryService;
@@ -37,6 +40,7 @@ namespace Nop.Plugin.Pages.Import1C.Controllers
             _productService = productService;
             _urlRecordService = urlRecordService;
             _pictureService = pictureService;
+            _shippingService = shippingService;
         }
 
         public ActionResult Index()
@@ -90,7 +94,9 @@ namespace Nop.Plugin.Pages.Import1C.Controllers
             КоммерческаяИнформация source)
         {
             XmlOffersImportService.Import(source,
+                _shippingService,
                 _productService,
+                $"{dir}\\WarehouseMappings.json",
                 $"{dir}\\ProductsMappings.json",
                 logFile);
         }

@@ -789,7 +789,7 @@ public partial class КоммерческаяИнформацияПакетПр�
 
     private string идСкладаField;
 
-    private byte количествоНаСкладеField;
+    private int количествоНаСкладеField;
 
     /// <remarks/>
     [System.Xml.Serialization.XmlAttributeAttribute()]
@@ -807,7 +807,7 @@ public partial class КоммерческаяИнформацияПакетПр�
 
     /// <remarks/>
     [System.Xml.Serialization.XmlAttributeAttribute()]
-    public byte КоличествоНаСкладе
+    public int КоличествоНаСкладе
     {
         get
         {
