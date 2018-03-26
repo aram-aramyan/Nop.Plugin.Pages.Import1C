@@ -45,11 +45,12 @@ namespace Nop.Plugin.Pages.Import1C.Controllers
             return View("~/Plugins/Pages.Import1C/Views/Import1C.cshtml");
         }
 
-        public ActionResult Upload(HttpPostedFileBase uploadedFile, 
+        public ActionResult Upload(HttpPostedFileBase uploadedFile,
             bool updateExisting = false,
             bool importSpecificationAttributes = false,
             bool overwriteCategories = false,
-            bool overwriteManufacturers = false)
+            bool overwriteManufacturers = false,
+            bool priceMode = false)
         {
             var dir = Request.MapPath("~/App_Data/Import1C");
             if (!Directory.Exists(dir))
@@ -61,20 +62,66 @@ namespace Nop.Plugin.Pages.Import1C.Controllers
             uploadedFile.SaveAs(path);
             logFile.Log("Файл сохранен на сервер");
 
-            var source = ReadXmlFile(path);
+            var source = ReadXmlFile<КоммерческаяИнформация>(path);
             logFile.Log("Файл успешно разобран");
 
             logFile.Log("Начало импорта");
 
+            if (priceMode)
+            {
+                ImportOffers(logFile, dir, source);
+            }
+            else
+            {
+                Import(updateExisting, importSpecificationAttributes, overwriteCategories, overwriteManufacturers, logFile, dir, source);
+            }
+
+            return File(logFile, "application/octet-stream", Path.GetFileName(logFile));
+        }
+
+        /// <summary>
+        /// Импорт предложений
+        /// </summary>
+        /// <param name="logFile"></param>
+        /// <param name="dir"></param>
+        /// <param name="source"></param>
+        private void ImportOffers(string logFile,
+            string dir,
+            КоммерческаяИнформация source)
+        {
+            XmlOffersImportService.Import(source,
+                _productService,
+                $"{dir}\\ProductsMappings.json",
+                logFile);
+        }
+
+        /// <summary>
+        /// Импорт
+        /// </summary>
+        /// <param name="updateExisting">обновлять существующие товары или игнорировать</param>
+        /// <param name="importSpecificationAttributes">импортировать атрибуты</param>
+        /// <param name="overwriteCategories">перезаписывать существующие категории или игнорировать</param>
+        /// <param name="overwriteManufacturers">перезаписывать существующих производителей или игнорировать</param>
+        /// <param name="logFile"></param>
+        /// <param name="dir"></param>
+        /// <param name="source"></param>
+        private void Import(bool updateExisting,
+            bool importSpecificationAttributes,
+            bool overwriteCategories,
+            bool overwriteManufacturers,
+            string logFile,
+            string dir, 
+            КоммерческаяИнформация source)
+        {
             // add categories
             Dictionary<string, int> categoryMappings;
             var categories = XmlCategoryImportService.Import(
-                 source,
-                 _categoryService,
-                     _urlRecordService,
-            $"{dir}\\CategoryMappings.json",
-                 out categoryMappings,
-                 logFile);
+                source,
+                _categoryService,
+                _urlRecordService,
+                $"{dir}\\CategoryMappings.json",
+                out categoryMappings,
+                logFile);
 
             // add attributes
             Dictionary<string, int> attributesMappings;
@@ -99,8 +146,8 @@ namespace Nop.Plugin.Pages.Import1C.Controllers
             var manufacturers = XmlManufacturerImportService.Import(
                 source,
                 _manufacturerService,
-                  _urlRecordService,
-              $"{dir}\\ManufacturerMappings.json",
+                _urlRecordService,
+                $"{dir}\\ManufacturerMappings.json",
                 out manufacturersMappings,
                 logFile);
 
@@ -118,7 +165,7 @@ namespace Nop.Plugin.Pages.Import1C.Controllers
                 manufacturers,
                 manufacturersMappings,
                 $"{dir}\\ProductsMappings.json",
-                logFile, 
+                logFile,
                 new XmlCatalogImportService.ImportCatalogSettings
                 {
                     UpdateExisting = updateExisting,
@@ -128,17 +175,16 @@ namespace Nop.Plugin.Pages.Import1C.Controllers
                 });
 
             logFile.Log("Импорт завершен");
-
-            return File(logFile, "application/octet-stream", Path.GetFileName(logFile));
         }
 
-        private static КоммерческаяИнформация ReadXmlFile(string path)
+
+        private static T ReadXmlFile<T>(string path)
         {
-            КоммерческаяИнформация result;
-            var serializer = new XmlSerializer(typeof(КоммерческаяИнформация));
+            T result;
+            var serializer = new XmlSerializer(typeof(T));
             using (var reader = new StreamReader(path))
             {
-                result = (КоммерческаяИнформация)serializer.Deserialize(reader);
+                result = (T)serializer.Deserialize(reader);
                 reader.Close();
             }
             return result;

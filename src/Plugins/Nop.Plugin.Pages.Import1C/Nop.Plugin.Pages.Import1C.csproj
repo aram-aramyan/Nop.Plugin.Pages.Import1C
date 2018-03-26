@@ -142,7 +142,9 @@
     <Compile Include="Services\XmlManufacturerImportService.cs" />
     <Compile Include="Services\XmlCatalogImportService.cs" />
     <Compile Include="Services\XmlCategoryImportService.cs" />
+    <Compile Include="Services\XmlOffersImportService.cs" />
     <Compile Include="Services\XmlSpecificationAttributesImportService.cs" />
+    <Compile Include="Xml\КоммерческаяИнформация3.cs" />
     <Compile Include="Xml\КоммерческаяИнформация2.cs" />
     <Compile Include="Xml\КоммерческаяИнформация.cs" />
     <Compile Include="Controllers\Import1CController.cs" />

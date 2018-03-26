@@ -10,38 +10,52 @@
         <h1>Импорт из 1С</h1>
     </div>
     <div class="page-body">
-
         @using (Html.BeginForm("Upload", "Import1C", FormMethod.Post, new RouteValueDictionary { { "enctype", "multipart/form-data" } }))
-    {
-        @Html.AntiForgeryToken()
-        <div class="fieldset">
-            <div class="form-fields">
-                <div class="inputs">
-                    @Html.Label("Файл")
-                    <input name="uploadedFile" type="file" />
-                </div>
-                <div class="inputs">
-                    @Html.Label("обновлять существующие")
-                    <input name="updateExisting" type="checkbox" value="true" />
-                </div>
-                <div class="inputs">
-                    @Html.Label("импорт характеристик")
-                    <input name="importSpecificationAttributes" type="checkbox" value="true" />
-                </div>
-                <div class="inputs">
-                    @Html.Label("перезаписать категории")
-                    <input name="overwriteCategories" type="checkbox" value="true" />
-                </div>
-                <div class="inputs">
-                    @Html.Label("перезаписать бренды")
-                    <input name="overwriteManufacturers" type="checkbox" value="true" />
+        {
+            @Html.AntiForgeryToken()
+            <div class="fieldset">
+                <div class="form-fields">
+                    <div class="inputs">
+                        @Html.Label("Файл")
+                        <input name="uploadedFile" type="file" />
+                    </div>
+                    <div class="inputs">
+                        @Html.Label("обновлять существующие")
+                        <input name="updateExisting" type="checkbox" value="true" />
+                    </div>
+                    <div class="inputs">
+                        @Html.Label("импорт характеристик")
+                        <input name="importSpecificationAttributes" type="checkbox" value="true" />
+                    </div>
+                    <div class="inputs">
+                        @Html.Label("перезаписать категории")
+                        <input name="overwriteCategories" type="checkbox" value="true" />
+                    </div>
+                    <div class="inputs">
+                        @Html.Label("перезаписать бренды")
+                        <input name="overwriteManufacturers" type="checkbox" value="true" />
+                    </div>
                 </div>
             </div>
-        </div>
-        <div class="buttons">
-            <input type="submit" name="send-email" class="button-1" value="Импорт" />
-        </div>
-}
-
+            <div class="buttons">
+                <input type="submit" name="send-email" class="button-1" value="Импорт" />
+            </div>
+        }
+        @using (Html.BeginForm("Upload", "Import1C", FormMethod.Post, new RouteValueDictionary { { "enctype", "multipart/form-data" } }))
+        {
+            @Html.AntiForgeryToken()
+            @Html.Hidden("priceMode", true)
+            <div class="fieldset">
+                <div class="form-fields">
+                    <div class="inputs">
+                        @Html.Label("Файл")
+                        <input name="uploadedFile" type="file" />
+                    </div>
+                </div>
+            </div>
+            <div class="buttons">
+                <input type="submit" name="send-email" class="button-1" value="Импорт цен и наличия" />
+            </div>
+        }
     </div>
 </div>
