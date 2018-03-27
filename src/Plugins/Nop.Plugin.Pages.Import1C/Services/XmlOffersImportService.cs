@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -76,7 +77,7 @@ namespace Nop.Plugin.Pages.Import1C.Services
 
                 stats[0]++;
 
-                sqlBuilder.AppendLine($"UPDATE [{ProductTableName}] SET [WarehouseId]={whId}, [StockQuantity]={quantity}, [Price]={price} WHERE [Id]={productId};");
+                sqlBuilder.AppendLine($"UPDATE [{ProductTableName}] SET [WarehouseId]={whId}, [StockQuantity]={quantity}, [Price]={price.ToString(CultureInfo.InvariantCulture)} WHERE [Id]={productId};");
 
                 // выполняем обновление БД пакетами по <packageSize> штук
                 const int packageSize = 1000;
