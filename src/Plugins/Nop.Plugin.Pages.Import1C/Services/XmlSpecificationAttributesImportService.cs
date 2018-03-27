@@ -66,13 +66,13 @@ string logFile)
                                     };
                                     specificationAttributeService.InsertSpecificationAttributeOption(option);
                                     attribute.SpecificationAttributeOptions.Add(option);
-                                    logFile.Log($"В существующий атрибут {attribute.Name} ({attribute.Id}) добавлено значение {option.Name}");
+                                    //logFile.Log($"В существующий атрибут {attribute.Name} ({attribute.Id}) добавлено значение {option.Name}");
                                     stats[0]++;
                                 }
                                 else
                                 {
                                     // мапим существующее значение
-                                    logFile.Log($"В существующем атрибуте {attribute.Name} ({attribute.Id}) добавлено сопоставление для значения {option.Name}");
+                                    //logFile.Log($"В существующем атрибуте {attribute.Name} ({attribute.Id}) добавлено сопоставление для значения {option.Name}");
                                     stats[1]++;
                                 }
                                 mappings[key] = option.Id;
@@ -90,7 +90,7 @@ string logFile)
                 specificationAttributeService.InsertSpecificationAttribute(attribute);
                 attributes.Add(attribute);
                 mappings[attr.Ид] = attribute.Id;
-                logFile.Log($"Новый атрибут {attribute.Name} ({attribute.Id})");
+                //logFile.Log($"Новый атрибут {attribute.Name} ({attribute.Id})");
                 stats[2]++;
 
                 if (attr.ТипЗначений == AttrTypeDictionary)
@@ -108,7 +108,7 @@ string logFile)
                         attribute.SpecificationAttributeOptions.Add(option);
 
                         mappings[key] = option.Id;
-                        logFile.Log($"В новый атрибут {attribute.Name} ({attribute.Id}) добавлено значение {option.Name}");
+                        //logFile.Log($"В новый атрибут {attribute.Name} ({attribute.Id}) добавлено значение {option.Name}");
                         stats[3]++;
                     }
                 }

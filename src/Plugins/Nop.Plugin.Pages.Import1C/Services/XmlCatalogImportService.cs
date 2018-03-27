@@ -73,19 +73,21 @@ namespace Nop.Plugin.Pages.Import1C.Services
                             FullDescription = prod.Описание,
                             AllowCustomerReviews = true,
                             Deleted = deleted,
-                            Published = !deleted
+                            Published = !deleted,
+                            OrderMinimumQuantity = 1,
+                            OrderMaximumQuantity = 10000
                         };
                         productService.InsertProduct(product);
                         var seName = product.ValidateSeName(null, product.Name, true);
                         urlRecordService.SaveSlug(product, seName, 0);
-                        logFile.Log($"Новый товар {product.Name} ({product.Id}): {prod.Ид}");
+                        //logFile.Log($"Новый товар {product.Name} ({product.Id}): {prod.Ид}");
                         stats[0]++;
                     }
                     else
                     {
                         if (!importSettings.UpdateExisting)
                         {
-                            logFile.Log($"Пропущен товар {product.Name} ({product.Id}): {prod.Ид}");
+                            //logFile.Log($"Пропущен товар {product.Name} ({product.Id}): {prod.Ид}");
                             stats[1]++;
                             continue;
                         }
@@ -93,7 +95,7 @@ namespace Nop.Plugin.Pages.Import1C.Services
                         product.Deleted = deleted;
                         product.Published = !deleted;
                         productService.UpdateProduct(product);
-                        logFile.Log($"Обновлен товар {product.Name} ({product.Id}): {prod.Ид}");
+                        //logFile.Log($"Обновлен товар {product.Name} ({product.Id}): {prod.Ид}");
                         stats[1]++;
                     }
                     mappings[prod.Ид] = product.Id;

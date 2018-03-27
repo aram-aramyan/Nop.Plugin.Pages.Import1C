@@ -12,6 +12,8 @@ namespace Nop.Plugin.Pages.Import1C.Services
 {
     internal static class XmlOffersImportService
     {
+        //private const string PRODUCT_TABLE_NAME = "Product";
+
         internal static void Import(КоммерческаяИнформация source,
             IShippingService shippingService,
             IProductService productService,
@@ -41,6 +43,7 @@ namespace Nop.Plugin.Pages.Import1C.Services
             var sitePrice = new[] { source.ПакетПредложений.ТипыЦен.ТипЦены }.ToList()
                 .FirstOrDefault(t => t.Наименование == "Для сайта");
 
+            var productsToSave = new List<Product>();
 
             foreach (var offer in source.ПакетПредложений.Предложения)
             {
@@ -71,11 +74,11 @@ namespace Nop.Plugin.Pages.Import1C.Services
                             product.StockQuantity = quantity;
                         }
 
-                        if (quantity > 0 && product.ManageInventoryMethod == ManageInventoryMethod.DontManageStock)
-                        {
-                            isDirty = true;
-                            product.ManageInventoryMethod = ManageInventoryMethod.ManageStock;
-                        }
+                        //if (quantity > 0 && product.ManageInventoryMethod == ManageInventoryMethod.DontManageStock)
+                        //{
+                        //    isDirty = true;
+                        //    product.ManageInventoryMethod = ManageInventoryMethod.ManageStock;
+                        //}
                     }
                     else if (product.WarehouseId > 0)
                     {
@@ -100,13 +103,16 @@ namespace Nop.Plugin.Pages.Import1C.Services
 
                     if (isDirty)
                     {
-                        productService.UpdateProduct(product);
+                        productsToSave.Add(product);
                         stats[0]++;
-                        logFile.Log($"Обновлено предложение на товар {product.Name} ({product.Id}): {offer.Ид}");
                     }
                 }
             }
 
+            if (productsToSave.Count > 0)
+            {
+                productService.UpdateProducts(productsToSave);
+            }
 
             logFile.Log($"Импорт предложений завершен. Обновлено: {stats[0]}.");
         }
@@ -138,7 +144,6 @@ namespace Nop.Plugin.Pages.Import1C.Services
                     shippingService.InsertWarehouse(warehouse);
                     warehouseMappings[wh.Ид] = warehouse.Id;
                     stats[0]++;
-                    logFile.Log($"Добавлен склад {wh.Наименование} ({warehouse.Id}): {wh.Ид}");
                 }
             }
 

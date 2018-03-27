@@ -60,12 +60,12 @@ namespace Nop.Plugin.Pages.Import1C.Services
                         var seName = manufacturer.ValidateSeName(null, manufacturer.Name, true);
                         urlRecordService.SaveSlug(manufacturer, seName, 0);
                         manufacturers.Add(manufacturer);
-                        logFile.Log($"Новый бренд {manufacturer.Name} ({manufacturer.Id}): {man.Id}");
+                        //logFile.Log($"Новый бренд {manufacturer.Name} ({manufacturer.Id}): {man.Id}");
                         stats[0]++;
                     }
                     else
                     {
-                        logFile.Log($"Существующий бренд {manufacturer.Name} ({manufacturer.Id}): {man.Id}");
+                        //logFile.Log($"Существующий бренд {manufacturer.Name} ({manufacturer.Id}): {man.Id}");
                         stats[1]++;
                     }
                     mappings[man.Id] = manufacturer.Id;

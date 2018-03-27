@@ -88,7 +88,7 @@ namespace Nop.Plugin.Pages.Import1C.Services
                 if (categoryItem.MappedTo != null)
                 {
                     mappings.Add(categoryItem.Id, categoryItem.MappedTo.Id);
-                    logFile.Log($"Существующая категория {categoryItem.MappedTo.Name} ({categoryItem.MappedTo.Id}): {categoryItem.Id}");
+                    //logFile.Log($"Существующая категория {categoryItem.MappedTo.Name} ({categoryItem.MappedTo.Id}): {categoryItem.Id}");
                     stats[0]++;
                 }
             }
@@ -118,7 +118,7 @@ namespace Nop.Plugin.Pages.Import1C.Services
                 categories.Add(newCategory);
 
                 mappings[categoryItem.Id] = categoryItem.MappedTo.Id;
-                logFile.Log($"Новая категория {categoryItem.MappedTo.Name} ({categoryItem.MappedTo.Id}): {categoryItem.Id}");
+                //logFile.Log($"Новая категория {categoryItem.MappedTo.Name} ({categoryItem.MappedTo.Id}): {categoryItem.Id}");
                 stats[1]++;
             }
 
