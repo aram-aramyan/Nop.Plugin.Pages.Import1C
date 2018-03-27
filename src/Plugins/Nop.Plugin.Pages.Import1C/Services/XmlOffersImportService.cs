@@ -1,22 +1,22 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
 using Newtonsoft.Json;
-using Nop.Core.Domain.Catalog;
 using Nop.Core.Domain.Shipping;
-using Nop.Services.Catalog;
+using Nop.Data;
 using Nop.Services.Shipping;
 
 namespace Nop.Plugin.Pages.Import1C.Services
 {
     internal static class XmlOffersImportService
     {
-        //private const string PRODUCT_TABLE_NAME = "Product";
+        private const string ProductTableName = "Product";
 
         internal static void Import(КоммерческаяИнформация source,
             IShippingService shippingService,
-            IProductService productService,
+            IDbContext dbContext,
             string warehouseMappingsFile,
             string mappingsFile,
             string logFile)
@@ -24,11 +24,11 @@ namespace Nop.Plugin.Pages.Import1C.Services
 
             var warehouseMappings = ImportWarehouses(source, shippingService, warehouseMappingsFile, logFile);
 
-            ImportOffers(source, productService, warehouseMappings, mappingsFile, logFile);
+            ImportOffers(source, dbContext, warehouseMappings, mappingsFile, logFile);
         }
 
         private static void ImportOffers(КоммерческаяИнформация source,
-            IProductService productService,
+            IDbContext dbContext,
             Dictionary<string, int> warehouseMappings,
             string mappingsFile,
             string logFile)
@@ -43,75 +43,55 @@ namespace Nop.Plugin.Pages.Import1C.Services
             var sitePrice = new[] { source.ПакетПредложений.ТипыЦен.ТипЦены }.ToList()
                 .FirstOrDefault(t => t.Наименование == "Для сайта");
 
-            var productsToSave = new List<Product>();
+            var sqlBuilder = new StringBuilder();
 
             foreach (var offer in source.ПакетПредложений.Предложения)
             {
                 // только те продукты, которые были ранее добавлены
-                if (mappings.ContainsKey(offer.Ид))
+                if (!mappings.ContainsKey(offer.Ид)) continue;
+
+                var productId = mappings[offer.Ид];
+
+                //todo: скорее всего их будет потом несколько
+                var whs = new[] { offer.Склад }.ToList();
+                var whId = 0;
+                var quantity = 0;
+                //todo: пока поддерживаем только 1 склад, потом нужно будет написать отдельный код для нескольких складов
+                if (whs.Count > 0)
                 {
-                    var isDirty = false;
-                    var product = productService.GetProductById(mappings[offer.Ид]);
+                    var wh = whs[0];
+                    whId = warehouseMappings.ContainsKey(wh.ИдСклада) ? warehouseMappings[wh.ИдСклада] : 0;
+                    quantity = wh.КоличествоНаСкладе;
+                }
 
-                    //todo: скорее всего их будет потом несколько
-                    var whs = new[] { offer.Склад }.ToList();
-
-                    //todo: пока поддерживаем только 1 склад, потом нужно будет написать отдельный код для нескольких складов
-                    if (whs.Count > 0)
+                decimal price = 0;
+                if (sitePrice != null)
+                {
+                    var offerPrice = new[] { offer.Цены.Цена }.ToList().FirstOrDefault(p => p.ИдТипаЦены == sitePrice.Ид);
+                    if (offerPrice != null)
                     {
-                        var wh = whs[0];
-                        var whId = warehouseMappings.ContainsKey(wh.ИдСклада) ? warehouseMappings[wh.ИдСклада] : 0;
-                        if (product.WarehouseId != whId)
-                        {
-                            isDirty = true;
-                            product.WarehouseId = whId;
-                        }
-
-                        var quantity = wh.КоличествоНаСкладе;
-                        if (product.StockQuantity != quantity)
-                        {
-                            isDirty = true;
-                            product.StockQuantity = quantity;
-                        }
-
-                        //if (quantity > 0 && product.ManageInventoryMethod == ManageInventoryMethod.DontManageStock)
-                        //{
-                        //    isDirty = true;
-                        //    product.ManageInventoryMethod = ManageInventoryMethod.ManageStock;
-                        //}
-                    }
-                    else if (product.WarehouseId > 0)
-                    {
-                        isDirty = true;
-                        product.WarehouseId = 0;
-                    }
-
-
-                    if (sitePrice != null)
-                    {
-                        var price = new[] { offer.Цены.Цена }.ToList().FirstOrDefault(p => p.ИдТипаЦены == sitePrice.Ид);
-                        if (price != null)
-                        {
-                            if (product.Price != price.ЦенаЗаЕдиницу)
-                            {
-                                isDirty = true;
-                                product.Price = price.ЦенаЗаЕдиницу;
-                            }
-                        }
-                    }
-
-
-                    if (isDirty)
-                    {
-                        productsToSave.Add(product);
-                        stats[0]++;
+                        price = offerPrice.ЦенаЗаЕдиницу;
                     }
                 }
-            }
 
-            if (productsToSave.Count > 0)
-            {
-                productService.UpdateProducts(productsToSave);
+                stats[0]++;
+
+                sqlBuilder.AppendLine($"UPDATE [{ProductTableName}] SET [WarehouseId]={whId}, [StockQuantity]={quantity}, [Price]={price} WHERE [Id]={productId};");
+
+                // выполняем обновление БД пакетами по <packageSize> штук
+                const int packageSize = 1000;
+                if (stats[0] % packageSize == 0)
+                {
+                    try
+                    {
+                        dbContext.ExecuteSqlCommand(sqlBuilder.ToString(), true);
+                        sqlBuilder.Clear();
+                    }
+                    catch (Exception ex)
+                    {
+                        logFile.Log($"Ошибка при обновлении пакета предложений: {stats[0] / packageSize}. {ex}");
+                    }
+                }
             }
 
             logFile.Log($"Импорт предложений завершен. Обновлено: {stats[0]}.");
